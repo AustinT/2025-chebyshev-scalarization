@@ -1,8 +1,9 @@
+import argparse
+
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
-from typing import Callable, Tuple, List, Dict
 
 def create_grid(n_points: int = 100) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Create a grid of points in [0,1] x [0,1]."""
@@ -235,13 +236,20 @@ def create_visualization(n_points: int = 100, n_slider_steps: int = 50,
     
     return fig
 
-def main(n_points: int = 100, n_slider_steps: int = 50, 
+def main(standalone: bool = False,
+         n_points: int = 100, n_slider_steps: int = 50, 
          z1: float = 1.1, z2: float = 1.1, rho: float = 0.05,
          output_file: str = "multi_objective_scalarization.html"):
     """Generate the visualization and save it to an HTML file."""
     fig = create_visualization(n_points, n_slider_steps, z1, z2, rho)
-    pio.write_html(fig, file=output_file, auto_open=True, auto_play=False)
+    html_kwargs = dict()
+    if not standalone:
+        html_kwargs = dict(include_plotlyjs='/assets/js/plotly-3.0.1.min.js')
+    pio.write_html(fig, file=output_file, auto_open=True, auto_play=False, **html_kwargs)
     print(f"Visualization saved to {output_file}")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--website", action="store_true")
+    args = parser.parse_args()
+    main(standalone=not args.website)
