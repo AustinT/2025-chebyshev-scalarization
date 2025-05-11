@@ -301,8 +301,8 @@ def create_visualization(
 
     # Update axes properties
     for i in range(1, 4):
-        fig.update_xaxes(title_text="x₁", range=[0, 1], row=1, col=i)
-        fig.update_yaxes(title_text="x₂", range=[0, 1], row=1, col=i)
+        fig.update_xaxes(title_text="f₁", range=[0, 1], row=1, col=i)
+        fig.update_yaxes(title_text="f₂", range=[0, 1], row=1, col=i)
 
     return fig
 
