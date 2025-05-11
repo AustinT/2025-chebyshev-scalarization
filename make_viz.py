@@ -280,7 +280,7 @@ def create_visualization(
     fig.update_layout(
         height=600,
         width=1200,
-        title="Multi-Objective Optimization Scalarization Methods",
+        title=None,
         sliders=sliders,
         updatemenus=[
             dict(
@@ -288,9 +288,9 @@ def create_visualization(
                 direction="down",
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.1,
+                x=0.01,
                 xanchor="left",
-                y=1.15,
+                y=1.20,
                 yanchor="top",
                 type="dropdown",
                 name="Feasible Region",
