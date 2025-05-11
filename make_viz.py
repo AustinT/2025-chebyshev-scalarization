@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
 
-def create_grid(n_points: int = 100) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def create_grid(n_points: int = 100) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Create a grid of points in [0,1] x [0,1]."""
     x = np.linspace(0, 1, n_points)
     y = np.linspace(0, 1, n_points)
