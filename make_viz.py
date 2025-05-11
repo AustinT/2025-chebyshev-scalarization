@@ -283,6 +283,7 @@ def create_visualization(
         width=1200,
         title=None,
         sliders=sliders,
+        showlegend=False,
         updatemenus=[
             dict(
                 buttons=dropdown_buttons,
