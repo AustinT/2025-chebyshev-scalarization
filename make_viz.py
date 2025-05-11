@@ -33,8 +33,9 @@ def is_feasible_mixed(points: np.ndarray) -> np.ndarray:
     # Convex condition: unit circle centered at (0,0)
     convex_condition = points[:, 0] ** 2 + points[:, 1] ** 2 <= 1
 
-    # Exclusion condition: another circle in top-right
-    exclusion_condition = (points[:, 0] - 1.1) ** 2 + (points[:, 1] - 1.1) ** 2 < 0.7**2
+    # Exclusion condition: another l_p circle in top-right
+    p = 6
+    exclusion_condition = (points[:, 0] - 1.1) ** p + (points[:, 1] - 1.1) ** p < 0.7**p
 
     return convex_condition & ~exclusion_condition
 
