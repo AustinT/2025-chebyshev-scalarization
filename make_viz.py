@@ -153,7 +153,7 @@ def create_visualization(
                 z=Z_feasible_static.astype(float),
                 x=x_range,
                 y=x_range,
-                colorscale=[[0, "rgba(255, 0, 0, 0.3)"], [1, "rgba(0, 255, 0, 0.3)"]],
+                colorscale=[[0, "rgba(211, 211, 211, 0.5)"], [1, "rgba(70, 130, 180, 0.5)"]],
                 showscale=False,
                 name=f"{scalar_name}_feasible_{feasibility_name}",
                 visible=is_visible,
@@ -167,7 +167,7 @@ def create_visualization(
                 x=optimal_points_initial[:, 0],
                 y=optimal_points_initial[:, 1],
                 mode="markers",
-                marker=dict(color="red", size=10),
+                marker=dict(color="black", size=10),
                 name=f"{scalar_name}_optimal_{feasibility_name}",
                 visible=is_visible,
             )
@@ -218,7 +218,7 @@ def create_visualization(
                     x=current_optimal_points[:, 0],
                     y=current_optimal_points[:, 1],
                     mode="markers",
-                    marker=dict(color="red", size=10),
+                    marker=dict(color="black", size=10),
                     name=f"{scalar_name_frame}_optimal_{feasibility_name_frame}",  # Name for consistency
                 )
                 frame_data_for_animation.append(optimal_trace_obj_frame)
