@@ -250,7 +250,7 @@ def create_visualization(n_points: int = 100, n_slider_steps: int = 50,
     return fig
 
 def main(standalone: bool = False,
-         n_points: int = 100, n_slider_steps: int = 50, 
+         n_points: int = 72, n_slider_steps: int = 25, 
          z1: float = 1.1, z2: float = 1.1, rho: float = 0.05,
          output_file: str = "multi_objective_scalarization.html"):
     """Generate the visualization and save it to an HTML file."""
