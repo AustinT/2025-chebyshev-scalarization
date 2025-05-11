@@ -83,84 +83,96 @@ def create_visualization(n_points: int = 100, n_slider_steps: int = 50,
     # W1 slider values
     w1_values = np.linspace(0, 1, n_slider_steps)
     
+    # Initialize figure with all traces (for w1_values[0])
+    # and identify indices of traces that will be animated
+    initial_w1 = w1_values[0]
+    animated_trace_indices = []
+    trace_counter = 0
+
+    for i, (scalar_name, scalar_func) in enumerate(scalarizations.items()):
+        col = i + 1
+        for feasibility_name, feasibility_func in feasibility_functions.items():
+            # Calculate data for initial_w1
+            feasible = feasibility_func(points)
+            scalar_values_initial = scalar_func(points, initial_w1)
+            optimal_points_initial = find_optimal_points(points, feasible, scalar_values_initial)
+
+            Z_scalar_initial = scalar_values_initial.reshape(X.shape)
+            Z_feasible_static = feasible.reshape(X.shape) # Static for this feasibility_name
+
+            is_visible = (feasibility_name == 'convex') # Initial visibility
+
+            # 1. Contour Trace (animated)
+            contour_obj_initial = go.Contour(
+                z=Z_scalar_initial, x=x_range, y=x_range,
+                colorscale='Viridis', showscale=False,
+                name=f"{scalar_name}_contour_{feasibility_name}",
+                contours=dict(coloring='lines', showlabels=True, labelfont=dict(size=12, color='white')),
+                visible=is_visible
+            )
+            fig.add_trace(contour_obj_initial, row=1, col=col)
+            animated_trace_indices.append(trace_counter)
+            trace_counter += 1
+
+            # 2. Feasible Region Trace (static with w1)
+            feasible_region_obj_static = go.Heatmap(
+                z=Z_feasible_static.astype(float), x=x_range, y=x_range,
+                colorscale=[[0, 'rgba(255, 0, 0, 0.3)'], [1, 'rgba(0, 255, 0, 0.3)']],
+                showscale=False,
+                name=f"{scalar_name}_feasible_{feasibility_name}",
+                visible=is_visible
+            )
+            fig.add_trace(feasible_region_obj_static, row=1, col=col)
+            # Not added to animated_trace_indices
+            trace_counter += 1
+
+            # 3. Optimal Points Trace (animated)
+            optimal_trace_obj_initial = go.Scatter(
+                x=optimal_points_initial[:, 0], y=optimal_points_initial[:, 1],
+                mode='markers', marker=dict(color='red', size=10),
+                name=f"{scalar_name}_optimal_{feasibility_name}",
+                visible=is_visible
+            )
+            fig.add_trace(optimal_trace_obj_initial, row=1, col=col)
+            animated_trace_indices.append(trace_counter)
+            trace_counter += 1
+
     # Create frames for animation
     frames = []
-    
-    for w1 in w1_values:
-        frame_data = []
+    for w1_frame_val in w1_values:
+        frame_data_for_animation = [] # Will contain 18 trace objects for animated traces
         
-        for i, (scalar_name, scalar_func) in enumerate(scalarizations.items()):
-            col = i + 1
+        # Iterate in the same order as initial trace creation to match animated_trace_indices
+        for scalar_name_frame, scalar_func_frame in scalarizations.items():
+            for feasibility_name_frame, feasibility_func_frame in feasibility_functions.items():
+                # Calculate data for current w1_frame_val
+                current_feasible_def = feasibility_func_frame(points)
+                current_scalar_values = scalar_func_frame(points, w1_frame_val)
+                current_optimal_points = find_optimal_points(points, current_feasible_def, current_scalar_values)
+                
+                # Create Contour object for the frame
+                contour_obj_frame = go.Contour(
+                    z=current_scalar_values.reshape(X.shape),
+                    x=x_range, y=x_range,
+                    colorscale='Viridis', showscale=False,
+                    name=f"{scalar_name_frame}_contour_{feasibility_name_frame}", # Name for consistency
+                    contours=dict(coloring='lines', showlabels=True, labelfont=dict(size=12, color='white'))
+                )
+                frame_data_for_animation.append(contour_obj_frame)
+                
+                # Feasible region is NOT added here (it's static)
+                
+                # Create Optimal Points object for the frame
+                optimal_trace_obj_frame = go.Scatter(
+                    x=current_optimal_points[:, 0], y=current_optimal_points[:, 1],
+                    mode='markers', marker=dict(color='red', size=10),
+                    name=f"{scalar_name_frame}_optimal_{feasibility_name_frame}" # Name for consistency
+                )
+                frame_data_for_animation.append(optimal_trace_obj_frame)
             
-            for feasibility_name, feasibility_func in feasibility_functions.items():
-                # Calculate feasibility
-                feasible = feasibility_func(points)
-                
-                # Calculate scalarization values
-                scalar_values = scalar_func(points, w1)
-                
-                # Reshape for contour
-                Z_scalar = scalar_values.reshape(X.shape)
-                Z_feasible = feasible.reshape(X.shape)
-                
-                # Find optimal points
-                optimal_points = find_optimal_points(points, feasible, scalar_values)
-                
-                # Create trace objects for frame_data (without explicit visibility)
-                contour_obj = go.Contour(
-                    z=Z_scalar,
-                    x=x_range,
-                    y=x_range,
-                    colorscale='Viridis',
-                    showscale=False,
-                    name=f"{scalar_name}_contour_{feasibility_name}",
-                    contours=dict(
-                        coloring='lines',
-                        showlabels=True,
-                        labelfont=dict(size=12, color='white')
-                    )
-                )
-                
-                feasible_region_obj = go.Heatmap(
-                    z=Z_feasible.astype(float),
-                    x=x_range,
-                    y=x_range,
-                    colorscale=[[0, 'rgba(255, 0, 0, 0.3)'], [1, 'rgba(0, 255, 0, 0.3)']],
-                    showscale=False,
-                    name=f"{scalar_name}_feasible_{feasibility_name}"
-                )
-                
-                optimal_trace_obj = go.Scatter(
-                    x=optimal_points[:, 0],
-                    y=optimal_points[:, 1],
-                    mode='markers',
-                    marker=dict(color='red', size=10),
-                    name=f"{scalar_name}_optimal_{feasibility_name}"
-                )
-                
-                frame_data.extend([contour_obj, feasible_region_obj, optimal_trace_obj])
-                
-                # Add traces to the figure for the initial frame (w1=w1_values[0])
-                # with specific visibility settings.
-                if w1 == w1_values[0]:
-                    is_initially_visible = (feasibility_name == 'convex')
-                    
-                    # Contour for initial figure state
-                    initial_contour = go.Contour(**contour_obj.to_plotly_json())
-                    initial_contour.visible = is_initially_visible
-                    fig.add_trace(initial_contour, row=1, col=col)
-                    
-                    # Feasible region for initial figure state
-                    initial_feasible_region = go.Heatmap(**feasible_region_obj.to_plotly_json())
-                    initial_feasible_region.visible = is_initially_visible
-                    fig.add_trace(initial_feasible_region, row=1, col=col)
-                    
-                    # Optimal points for initial figure state
-                    initial_optimal_trace = go.Scatter(**optimal_trace_obj.to_plotly_json())
-                    initial_optimal_trace.visible = is_initially_visible
-                    fig.add_trace(initial_optimal_trace, row=1, col=col)
-        
-        frames.append(go.Frame(data=frame_data, name=f"w1={w1:.2f}"))
+        frames.append(go.Frame(data=frame_data_for_animation, 
+                               name=f"w1={w1_frame_val:.2f}", 
+                               traces=animated_trace_indices))
     
     # Add frames to the figure
     fig.frames = frames
@@ -191,19 +203,20 @@ def create_visualization(n_points: int = 100, n_slider_steps: int = 50,
     
     # Create dropdown for feasible region selection
     dropdown_buttons = []
-    for feasibility_name in feasibility_functions.keys():
-        visible_traces = []
-        for i in range(len(fig.data)):
-            if feasibility_name in fig.data[i].name:
-                visible_traces.append(True)
+    for feasibility_name_dropdown in feasibility_functions.keys():
+        visible_traces_flags = [] # List of 27 booleans for fig.data
+        for trace_in_fig in fig.data: # fig.data has 27 traces
+            # trace_in_fig.name is like "linear_contour_convex"
+            if feasibility_name_dropdown in trace_in_fig.name:
+                visible_traces_flags.append(True)
             else:
-                visible_traces.append(False)
+                visible_traces_flags.append(False)
                 
         dropdown_buttons.append(
             dict(
                 method="update",
-                args=[{"visible": visible_traces}],
-                label=feasibility_name.capitalize()
+                args=[{"visible": visible_traces_flags}],
+                label=feasibility_name_dropdown.capitalize()
             )
         )
     
