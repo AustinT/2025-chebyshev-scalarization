@@ -103,7 +103,8 @@ def create_visualization(
     )
 
     # W1 slider values
-    w1_values = np.linspace(0, 1, n_slider_steps)
+    eps = 1e-3
+    w1_values = np.linspace(eps, 1 - eps, n_slider_steps)
 
     # Initialize figure with all traces (for w1_values[0])
     # and identify indices of traces that will be animated
