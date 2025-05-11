@@ -307,7 +307,7 @@ def create_visualization(
 
 
 def main(
-    standalone: bool = False,
+    standalone: bool = True,
     n_points: int = 72,
     n_slider_steps: int = 25,
     z1: float = 1.1,
