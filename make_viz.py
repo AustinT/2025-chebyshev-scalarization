@@ -154,7 +154,10 @@ def create_visualization(
                 z=Z_feasible_static.astype(float),
                 x=x_range,
                 y=x_range,
-                colorscale=[[0, "rgba(211, 211, 211, 0.5)"], [1, "rgba(70, 130, 180, 0.5)"]],
+                colorscale=[
+                    [0, "rgba(211, 211, 211, 0.5)"],
+                    [1, "rgba(70, 130, 180, 0.5)"],
+                ],
                 showscale=False,
                 name=f"{scalar_name}_feasible_{feasibility_name}",
                 visible=is_visible,
