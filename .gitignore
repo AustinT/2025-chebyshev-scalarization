@@ -1,3 +1,6 @@
+# Output HTML file
+multi_objective_scalarization.html
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
