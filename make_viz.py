@@ -283,8 +283,6 @@ def create_visualization(
 
     # Update layout
     fig.update_layout(
-        height=600,
-        width=1200,
         title=None,
         sliders=sliders,
         showlegend=False,
@@ -327,7 +325,12 @@ def main(
     if not standalone:
         html_kwargs = dict(include_plotlyjs="/assets/js/plotly-3.0.1.min.js")
     pio.write_html(
-        fig, file=output_file, auto_open=True, auto_play=False, **html_kwargs
+        fig,
+        file=output_file,
+        auto_open=True,
+        auto_play=False,
+        config={"responsive": True},
+        **html_kwargs,
     )
     print(f"Visualization saved to {output_file}")
 
